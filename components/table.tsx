@@ -18,10 +18,10 @@ import States from "@/components/states";
 const months: string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 function formatDate(date: Date): string {
-  const month = months[date.getMonth()]
-  const day = date.getDate()
-  const hour = date.getHours()
-  const minutes = date.getMinutes()
+  const month = months[date?.getMonth()]
+  const day = date?.getDate()
+  const hour = date?.getHours()
+  const minutes = date?.getMinutes()
   
   return `${month} ${day}, ${hour}:${minutes} ${hour > 12 ? 'P' : 'A'}M`
 }
@@ -29,9 +29,17 @@ function formatDate(date: Date): string {
 export default function Table({
   data,
   columns,
+  count,
+  fetchPageItem,
+  limit,
+  page,
 }: {
   data: Product[]
   columns: ColumnDef<Product>[]
+  count: number,
+  fetchPageItem: (page: number) => void,
+  limit: number,
+  page: number
 }): JSX.Element {
   const table = useReactTable({
     data,
@@ -39,6 +47,7 @@ export default function Table({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    pageCount: count,
     debugTable: true,
   })
 
@@ -80,7 +89,7 @@ export default function Table({
                   return (
                     <td key={cell.id} className='px-[6px] py-2 text-[#5A6170] text-sm'>
                       {cell.column.id === 'created_at'
-                        ? formatDate(cell.renderValue() as Date)
+                        ? formatDate(new Date(cell.renderValue() as string))
                         : cell.column.id === 'progress'
                           ? <States label={(cell.renderValue() as string)} state={(cell.renderValue() as string)} />
                           : flexRender(cell.column.columnDef.cell, cell.getContext())
@@ -96,21 +105,26 @@ export default function Table({
       <div className='flex items-center justify-between bg-white px-1 border-t border-[#D9DEE3]'>
         <span className='flex items-center gap-1 text-[#5A6170] text-xs font-medium px-[6px] py-[10px]'>
           <div>Viewing</div>
-          {table.getState().pagination.pageIndex + 1} of{' '}
-          {table.getPageCount()} {' '}
+          {page} of{' '}
+          {isNaN(Math.ceil(count / limit)) ? 1 : Math.ceil(count / limit)} {' '}
           results
         </span>
         
         <div className='flex gap-1'>
           <Button
             variant='mini'
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => {
+              fetchPageItem(page - 1)
+              table.previousPage()
+            }}
+            disabled={page === 1}
           >Previous</Button>
           <Button
             variant='mini'
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => {
+              fetchPageItem(page + 1)
+            }}
+            disabled={!(limit * page <= count)}
           >Next</Button>
         </div>
       </div>
