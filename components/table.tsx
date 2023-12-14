@@ -9,6 +9,7 @@ import {
   getPaginationRowModel,
   flexRender,
 } from '@tanstack/react-table'
+import { Skeleton } from '@nextui-org/react'
 import clsx from 'clsx'
 
 import type { Product } from '@/data'
@@ -48,7 +49,6 @@ export default function Table({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     pageCount: count,
-    debugTable: true,
   })
 
   return (
@@ -82,7 +82,34 @@ export default function Table({
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => {
+          {table.getRowModel().rows.length === 0 ? (
+            <>
+              {Array(10).fill(0).map((_, idx: number) => (
+                <tr key={idx+1} className='text-xs text-gray-700 border-t border-[#D9DEE3]'>
+                  <td className='px-[6px] py-2 text-[#5A6170] text-sm'>
+                    <Skeleton className="w-3/5 rounded-md">
+                      <div className="h-6 w-3/5 rounded-md bg-default-200"></div>
+                    </Skeleton>
+                  </td>
+                  <td className='px-[6px] py-2 text-[#5A6170] text-sm'>
+                    <Skeleton className="w-3/5 rounded-md">
+                      <div className="h-6 w-3/5 rounded-md bg-default-200"></div>
+                    </Skeleton>
+                  </td>
+                  <td className='px-[6px] py-2 text-[#5A6170] text-sm'>
+                    <Skeleton className="w-3/5 rounded-md">
+                      <div className="h-6 w-3/5 rounded-md bg-default-200"></div>
+                    </Skeleton>
+                  </td>
+                  <td className='px-[6px] py-2 text-[#5A6170] text-sm'>
+                    <Skeleton className="w-3/5 rounded-md">
+                      <div className="h-6 w-3/5 rounded-md bg-default-200"></div>
+                    </Skeleton>
+                  </td>
+                </tr>
+              ))}
+            </>
+          ) : table.getRowModel().rows.map((row) => {
             return (
               <tr key={row.id} className='text-xs text-gray-700 border-t border-[#D9DEE3]'>
                 {row.getVisibleCells().map((cell) => {

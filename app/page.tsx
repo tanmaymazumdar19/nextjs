@@ -1,17 +1,17 @@
 'use client'
 
 import type { JSX } from 'react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 import FilterPill from '@/components/filter-pill'
 import Table from '@/components/table'
 
-import { Product, makeData } from '@/data'
+import { Product } from '@/data'
 
 export default function Home(): JSX.Element {
   const [progress, setProgress] = useState<string>('')
-  const [product, setProduct] = useState({ data: [], total: 0, limit: 0 })
   const [page, setPage] = useState<number>(1)
   const columns = useMemo<ColumnDef<Product>[]>(
     () => [
@@ -34,18 +34,16 @@ export default function Home(): JSX.Element {
     ], []
   )
 
-  async function onFetchItem(page: number = 1) {
-    setPage(page)
-    let res = await fetch(`/api/product?page=${page}`)
-    res = await res.json()
-    setProduct(res as never)
-  }
+  const { data, isFetching } = useQuery({
+    queryKey: ['products', page],
+    queryFn: () => onFetchItem(page),
+    placeholderData: keepPreviousData,
+  })
 
-  useEffect(() => {
-    ;(async () => {
-      await onFetchItem()
-    })()
-  }, [])
+  async function onFetchItem(page: number = 1) {
+    let res = await fetch(`/api/product?page=${page}`)
+    return await res.json()
+  }
 
   return (
     <>
@@ -53,7 +51,19 @@ export default function Home(): JSX.Element {
         <FilterPill label='State' value={progress} onChange={(key: string) => setProgress(key)} />
         <FilterPill label='Request ID' />
       </div>
-      <Table {...{ data: product.data, columns, count: product.total, fetchPageItem: onFetchItem, limit: product.limit, page }} />
+
+        <Table
+          key={data?.data?.length}
+          {...{
+            data: data?.data ?? [],
+            columns,
+            count: data?.total ?? 0,
+            fetchPageItem: (p: number) => setPage(p),
+            limit: data?.limit ?? 10,
+            page,
+          }}
+        />
+
     </>
   )
 }

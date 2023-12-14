@@ -8,5 +8,5 @@ export default function MyApp({ Component, pageProps }: any) {
     <main className={inter.className}>
       <Component {...pageProps} />
     </main>
-    )
+  )
 }

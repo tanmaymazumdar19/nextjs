@@ -1,5 +1,3 @@
-import type { NextApiRequest } from 'next'
-
 export interface Product {
   id: number
   progress: string
@@ -48,7 +46,7 @@ const data: Product[] = [
 
 const limit = 10
 
-export function GET(req: NextApiRequest): Response {
+export function GET(req: any): Response {
   const { searchParams } = new URL(req.url as string)
   let page
   
