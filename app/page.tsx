@@ -54,22 +54,21 @@ export default function Home(): JSX.Element {
     <>
       <div className='flex gap-3 items-center'>
         <FilterPill label='State' value={progress} onChange={(key: string) => setProgress(key)} />
-        <FilterPill label='Request ID' onChange={(id: string) => setResourceId(id)} />
+        <FilterPill label='Request ID' value={resourceId} onChange={(id: string) => setResourceId(id)} />
       </div>
 
-        <Table
-          key={data?.data?.length}
-          {...{
-            data: data?.data ?? [],
-            columns,
-            count: data?.total ?? 0,
-            fetchPageItem: (p: number) => setPage(p),
-            isLoading: isFetching,
-            limit: data?.limit ?? 10,
-            page,
-          }}
-        />
-
+      <Table
+        key={data?.data?.length}
+        {...{
+          data: data?.data ?? [],
+          columns,
+          count: data?.total ?? 0,
+          fetchPageItem: (p: number) => setPage(p),
+          isLoading: isFetching,
+          limit: data?.limit ?? 10,
+          page,
+        }}
+      />
     </>
   )
 }
