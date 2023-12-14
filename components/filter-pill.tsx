@@ -23,9 +23,12 @@ export default function FilterPill(props: Readonly<FilterPillProps>): JSX.Elemen
   const ref = useRef()
   const chip = useRef()
   const [open, setOpen] = useState(false)
+  const [filter, setFilter] = useState(new Set())
+  const [val, setVal] = useState<string>('')
 
-  function onStateChange(key: any): void {
-    props.onChange?.([...key][0])
+  function onStateChange(): void {
+    // @ts-ignore
+    props.onChange?.([...filter][0] ?? val)
   }
 
   return (
@@ -71,7 +74,8 @@ export default function FilterPill(props: Readonly<FilterPillProps>): JSX.Elemen
                     placeholder='Select a state'
                     className='max-w-xs'
                     {...(value ? { defaultSelectedKeys: [(value ?? '').toLowerCase()] } : {})}
-                    onSelectionChange={onStateChange}
+                    // @ts-expect-error
+                    onSelectionChange={setFilter}
                   >
                     {states.map((state: { id: string; label: string }) => (
                       <SelectItem key={state.id} value={state.id}>
@@ -84,12 +88,16 @@ export default function FilterPill(props: Readonly<FilterPillProps>): JSX.Elemen
                     label=''
                     type='text'
                     variant='bordered'
-                    value={value ?? ''}
+                    defaultValue={value ?? ''}
                     classNames={{ inputWrapper: ['h-[34px]'] }}
+                    onChange={(e: any) => setVal(e.target.value)}
                   />
                 )}
               </div>
-              <Button variant='normal' onClick={() => setOpen(false)}>
+              <Button variant='normal' onClick={() => {
+                onStateChange()
+                setOpen(false)
+              }}>
                 Apply
               </Button>
             </div>,

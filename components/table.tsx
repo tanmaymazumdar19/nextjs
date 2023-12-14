@@ -32,6 +32,7 @@ export default function Table({
   columns,
   count,
   fetchPageItem,
+  isLoading,
   limit,
   page,
 }: {
@@ -39,6 +40,7 @@ export default function Table({
   columns: ColumnDef<Product>[]
   count: number,
   fetchPageItem: (page: number) => void,
+  isLoading: boolean,
   limit: number,
   page: number
 }): JSX.Element {
@@ -49,6 +51,7 @@ export default function Table({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     pageCount: count,
+    debugTable: true,
   })
 
   return (
@@ -82,7 +85,7 @@ export default function Table({
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.length === 0 ? (
+          {table.getRowModel().rows.length === 0 && isLoading ? (
             <>
               {Array(10).fill(0).map((_, idx: number) => (
                 <tr key={idx+1} className='text-xs text-gray-700 border-t border-[#D9DEE3]'>
