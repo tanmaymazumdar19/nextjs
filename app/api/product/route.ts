@@ -48,13 +48,35 @@ const limit = 10
 
 export function GET(req: any): Response {
   const { searchParams } = new URL(req.url as string)
-  let page
+  let page, filterType: string, filterTerm: string
   
   try {
     page = parseInt(searchParams.get('page') ?? '1')
+    filterType = searchParams.get('filterType') as string ?? ''
+    filterTerm = searchParams.get('filterTerm') as string ?? ''
   } catch (err) {
     page = 1
+    filterType = ''
+    filterTerm = ''
   }
-  
-  return Response.json({ data: data.slice((page - 1) * limit, page * limit), total: data.length, limit })
+
+  let result = []
+
+  if (filterType !== '') {
+    result = data.filter((d: any) => {
+      if (filterType === 'state') {
+        return d.progress === filterTerm
+      }
+
+      if (filterType === 'resource_id') {
+        return d.id === parseInt(filterTerm ?? '0')
+      }
+
+      return false
+    })
+  } else {
+    result = data
+  }
+
+  return Response.json({ data: result.slice((page - 1) * limit, page * limit), total: (filterType === '' ? data : result).length, limit })
 }
